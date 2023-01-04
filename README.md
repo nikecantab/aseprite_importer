@@ -41,8 +41,15 @@ Importing to Godot
 3. Select the texture file if it has not been automatically loaded
 4. Select which tags you want to be imported
 5. Select the `AnimationPlayer` node where you want the animations to be added/modified
-6. Select The `Sprite`/`Sprite3D` node you want to be affected by the animations
+6. Select The `Sprite2D`/`Sprite3D` node you want to be affected by the animations
 7. Press **Generate Animations**
+
+New Features!
+----------------------
+- Name the `AnimationLibrary` you want to save to
+- Select which animations you want to loop
+- Color your aseprite tags to mark them as looping animations
+
 
 Limitations
 =======
