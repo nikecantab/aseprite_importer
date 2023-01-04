@@ -1,10 +1,12 @@
-tool
+@tool
 extends Container
 
 
-onready var select_all_button : CheckBox = find_node("SelectAllButton")
-onready var options_list : VBoxContainer = find_node("OptionsList")
-onready var tree : Tree = $Tree
+@onready var select_all_button : CheckBox = find_child("SelectAllButton")
+@onready var options_list : VBoxContainer = find_child("OptionsList")
+@onready var color_list : HBoxContainer = find_child("ColorList")
+@onready var loopcolor_button : CheckBox = find_child("ColorCodeButton")
+@onready var tree : Tree = $Tree
 
 
 enum Columns {
@@ -13,12 +15,14 @@ enum Columns {
 	START,
 	END,
 	DIRECTION,
+	LOOPING
 }
 
 
 var _tree_root : TreeItem
 var _options := []
 var _toggling_option := false
+var _looping_color : String = ''
 
 
 signal frame_selected(idx)
@@ -32,29 +36,41 @@ func _ready():
 	tree.columns = Columns.size()
 
 	tree.set_column_expand(Columns.SELECTED, false)
-	tree.set_column_min_width(Columns.SELECTED, 32)
+	tree.set_column_custom_minimum_width(Columns.SELECTED, 32)
 
 	tree.set_column_title(Columns.NAME, "Name")
 	tree.set_column_expand(Columns.NAME, true)
-	tree.set_column_min_width(Columns.START, 48)
+	tree.set_column_custom_minimum_width(Columns.START, 48)
 
 	tree.set_column_title(Columns.START, "Start")
 	tree.set_column_expand(Columns.START, false)
-	tree.set_column_min_width(Columns.START, 48)
+	tree.set_column_custom_minimum_width(Columns.START, 48)
 
 	tree.set_column_title(Columns.END, "End")
 	tree.set_column_expand(Columns.END, false)
-	tree.set_column_min_width(Columns.END, 48)
+	tree.set_column_custom_minimum_width(Columns.END, 48)
 
 	tree.set_column_title(Columns.DIRECTION, "Direction")
 	tree.set_column_expand(Columns.DIRECTION, false)
-	tree.set_column_min_width(Columns.DIRECTION, 84)
+	tree.set_column_custom_minimum_width(Columns.DIRECTION, 84)
+	
+	tree.set_column_title(Columns.LOOPING, "Loop")
+	tree.set_column_expand(Columns.LOOPING, false)
+	tree.set_column_custom_minimum_width(Columns.LOOPING, 48)
 
 	tree.set_column_titles_visible(true)
 
-	select_all_button.connect("toggled", self, "_on_SelectAllButton_toggled")
-	tree.connect("cell_selected", self, "_on_Tree_cell_selected")
-	tree.connect("item_edited", self, "_on_Tree_item_edited")
+	select_all_button.toggled.connect(_on_SelectAllButton_toggled)
+	tree.cell_selected.connect(_on_Tree_cell_selected)
+	tree.item_edited.connect(_on_Tree_item_edited)
+	
+	loopcolor_button.pressed.connect(check_color_code_state)
+	for c in color_list.get_children(false):
+		if c is CheckBox:
+			c.pressed.connect(check_color_code_state)
+	
+	check_color_code_state()
+	
 
 
 func clear_options() -> void:
@@ -86,17 +102,26 @@ func load_tags(tags : Array) -> void:
 		new_tree_item.set_text(Columns.NAME, tag.name)
 
 		new_tree_item.set_text(Columns.START, str(floor(tag.from)))
-		new_tree_item.set_text_align(Columns.START, TreeItem.ALIGN_CENTER)
+		new_tree_item.set_text_alignment(Columns.START, HORIZONTAL_ALIGNMENT_CENTER)
 
 		new_tree_item.set_text(Columns.END, str(floor(tag.to)))
-		new_tree_item.set_text_align(Columns.END, TreeItem.ALIGN_CENTER)
+		new_tree_item.set_text_alignment(Columns.END, HORIZONTAL_ALIGNMENT_CENTER)
 
 		new_tree_item.set_text(Columns.DIRECTION, "  %s" % tag.direction)
 		new_tree_item.set_selectable(Columns.DIRECTION, false)
+	
+		new_tree_item.set_cell_mode(Columns.LOOPING, TreeItem.CELL_MODE_CHECK)
+		new_tree_item.set_editable(Columns.LOOPING, true)
+		new_tree_item.set_checked(Columns.LOOPING, false)
+		if tag.has("color"):
+			#COLOR CODED TAGS
+			#TODO: Select loop color
+			new_tree_item.set_checked(Columns.LOOPING, tag.color == _looping_color)
+		new_tree_item.set_selectable(Columns.LOOPING, false)
 
 		_options.append(new_tree_item)
 
-	select_all_button.pressed = true
+	select_all_button.button_pressed = true
 	select_all_button.show()
 
 
@@ -109,6 +134,17 @@ func get_selected_tags() -> Array:
 			selected_tags.append(i)
 
 	return selected_tags
+
+
+func get_looping() -> Array:
+	var looping_anims := []
+
+	for i in range(_options.size()):
+		var item : TreeItem = _options[i]
+		if item.is_checked(Columns.SELECTED):
+			looping_anims.append(item.is_checked(Columns.LOOPING))
+
+	return looping_anims
 
 
 func get_state() -> Dictionary:
@@ -129,7 +165,7 @@ func get_state() -> Dictionary:
 
 func set_state(new_state : Dictionary) -> void:
 	if new_state.has("selected_tags") and _options != []:
-		select_all_button.pressed = false
+		select_all_button.button_pressed = false
 
 		for tag in new_state.selected_tags:
 			_options[tag].set_checked(Columns.SELECTED, true)
@@ -153,7 +189,7 @@ func set_state(new_state : Dictionary) -> void:
 				return
 
 		_toggling_option = true
-		select_all_button.pressed = true
+		select_all_button.button_pressed = true
 		_toggling_option = false
 
 
@@ -185,7 +221,7 @@ func _on_Tree_item_edited() -> void:
 	if select_all_button.pressed:
 		for option in _options:
 			if option.is_checked(Columns.SELECTED):
-				select_all_button.pressed = false
+				select_all_button.button_pressed = false
 				break
 	else:
 		var is_all_selected := true
@@ -195,8 +231,21 @@ func _on_Tree_item_edited() -> void:
 				break
 
 		if is_all_selected:
-			select_all_button.pressed = true
+			select_all_button.button_pressed = true
 
 	_toggling_option = false
 
 	emit_signal("selected_tags_changed", get_selected_tags())
+
+func check_color_code_state() -> void:
+	if loopcolor_button.button_pressed:
+		for c in color_list.get_children(false):
+			if c is CheckBox:
+				if c.button_pressed:
+					_looping_color = "#" + c.get_child(0).color.to_html()
+				c.set_disabled(false)
+	else:
+		for c in color_list.get_children(false):
+			if c is CheckBox:
+				c.set_disabled(true)
+		_looping_color = ''

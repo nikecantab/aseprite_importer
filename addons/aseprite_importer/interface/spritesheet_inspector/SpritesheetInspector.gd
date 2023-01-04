@@ -1,25 +1,25 @@
-tool
+@tool
 extends Container
 
 
-onready var header : HBoxContainer= $Header
-onready var filename_label : Label = header.find_node("Filename")
-onready var settings_button : Button = header.find_node("SettingsButton")
+@onready var header : HBoxContainer= $Header
+@onready var filename_label : Label = header.find_child("Filename")
+@onready var settings_button : Button = header.find_child("SettingsButton")
 
-onready var body : Container = $Body
-onready var warning_message : Label = body.find_node("WarningMessage")
-onready var search_file_button : Button = body.find_node("SearchFileButton")
+@onready var body : Container = $Body
+@onready var warning_message : Label = body.find_child("WarningMessage")
+@onready var search_file_button : Button = body.find_child("SearchFileButton")
 
-onready var spritesheet_view : Container = body.find_node("SpritesheetView")
+@onready var spritesheet_view : Container = body.find_child("SpritesheetView")
 
-onready var settings_menu : Container = body.get_node("SettingsMenu")
+@onready var settings_menu : Container = body.get_node("SettingsMenu")
 
-onready var footer : HBoxContainer = $Footer
-onready var frame_count : Label = footer.get_node("FrameCount")
-onready var zoom_button : Button = footer.get_node("ZoomButton")
-onready var zoom_slider : HSlider = footer.get_node("ZoomSlider")
+@onready var footer : HBoxContainer = $Footer
+@onready var frame_count : Label = footer.get_node("FrameCount")
+@onready var zoom_button : Button = footer.get_node("ZoomButton")
+@onready var zoom_slider : HSlider = footer.get_node("ZoomSlider")
 
-onready var file_dialog : FileDialog = $FileDialog
+@onready var file_dialog : FileDialog = $FileDialog
 
 
 const MSG_MISSING_IMAGE_PARAMETER = "The imported JSON doesn't contain the spritesheet file name"
@@ -29,7 +29,8 @@ const MSG_LOAD_ERROR = "Error on loading the file!"
 const MSG_SPRITESHEET_NOT_FOUND = "Spritesheet \"%s\" not found!"
 
 
-var texture_size : Vector2 setget set_texture_size
+#var texture_size : Vector2 setget set_texture_size
+var texture_size : Vector2 : set = set_texture_size
 var frames := []
 
 var _zoom_update := false
@@ -38,7 +39,7 @@ var _zoom_update := false
 func _ready() -> void:
 	clear_texture()
 
-	settings_button.pressed = false
+	settings_button.button_pressed = false
 	warning_message.text = MSG_IMPORT_JSON
 	search_file_button.hide()
 	spritesheet_view.hide()
@@ -47,13 +48,20 @@ func _ready() -> void:
 	var settings = settings_menu.settings
 	spritesheet_view.load_settings(settings)
 
-	settings_button.connect("toggled", self, "_on_SettingsButton_toggled")
-	search_file_button.connect("pressed", self, "_on_SearchFileButton_pressed")
-	spritesheet_view.connect("zoom_changed", self, "_on_SpritesheetInspector_zoom_changed")
-	settings_menu.connect("settings_changed", self, "_on_SettingsMenu_settings_changed")
-	zoom_button.connect("pressed", self, "_on_ZoomButton_pressed")
-	zoom_slider.connect("value_changed", self, "_on_ZoomSlider_value_changed")
-	file_dialog.connect("file_selected", self, "_on_FileDialog_file_selected")
+#	settings_button.connect("toggled", self, "_on_SettingsButton_toggled")
+	settings_button.toggled.connect(_on_SettingsButton_toggled)
+#	search_file_button.connect("pressed", self, "_on_SearchFileButton_pressed")
+	search_file_button.pressed.connect(_on_SearchFileButton_pressed)
+#	spritesheet_view.connect("zoom_changed", self, "_on_SpritesheetInspector_zoom_changed")
+	spritesheet_view.zoom_changed.connect(_on_SpritesheetInspector_zoom_changed)
+#	settings_menu.connect("settings_changed", self, "_on_SettingsMenu_settings_changed")
+	settings_menu.settings_changed.connect(_on_SettingsMenu_settings_changed)
+#	zoom_button.connect("pressed", self, "_on_ZoomButton_pressed")
+	zoom_button.pressed.connect(_on_ZoomButton_pressed)
+#	zoom_slider.connect("value_changed", self, "_on_ZoomSlider_value_changed")
+	zoom_slider.value_changed.connect(_on_ZoomSlider_value_changed)
+#	file_dialog.connect("file_selected", self, "_on_FileDialog_file_selected")
+	file_dialog.file_selected.connect(_on_FileDialog_file_selected)
 
 
 func clear_texture() -> void:
@@ -87,7 +95,7 @@ func get_texture() -> Texture:
 
 
 func load_texture(path : String) -> int:
-	if not path:
+	if path.is_empty():
 		_show_find_file_prompt(MSG_MISSING_IMAGE_PARAMETER)
 
 		return ERR_INVALID_DATA
@@ -104,22 +112,21 @@ func load_texture(path : String) -> int:
 
 		return ERR_INVALID_DATA
 
-	var file := File.new()
-
-	if !file.file_exists(path):
+#	var file := File.new()
+	if !FileAccess.file_exists(path):
 		_show_find_file_prompt(MSG_SPRITESHEET_NOT_FOUND % file_name)
 		file_dialog.current_dir = dir_path
 
 		return ERR_FILE_NOT_FOUND
 
-	var new_texture : Texture = load(path)
+	var new_texture : Texture2D = load(path)
 
 	if new_texture == null:
 		_show_find_file_prompt(MSG_LOAD_ERROR)
 
 		return ERR_INVALID_DATA
 
-	var new_texture_size := new_texture.get_size()
+	var new_texture_size : Vector2 = new_texture.get_size()
 	if new_texture_size != texture_size:
 		var message := MSG_INVALID_TEXTURE_SIZE % [new_texture.get_size(), texture_size]
 		_show_find_file_prompt(message)

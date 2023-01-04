@@ -1,41 +1,211 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=3 uid="uid://bcevnu8emr41w"]
 
-[ext_resource path="res://addons/aseprite_importer/interface/import_menu/TagsMenu.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://addons/aseprite_importer/interface/import_menu/TagsMenu.gd" id="1"]
 
-
+[sub_resource type="ButtonGroup" id="ButtonGroup_qi5bp"]
 
 [node name="TagSelectMenu" type="VBoxContainer"]
-rect_min_size = Vector2( 0, 120 )
+custom_minimum_size = Vector2(0, 120)
+offset_right = 36.0
+offset_bottom = 120.0
 size_flags_vertical = 3
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
+script = ExtResource("1")
 
 [node name="Header" type="HBoxContainer" parent="."]
-margin_right = 28.0
-margin_bottom = 14.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Header"]
-margin_right = 28.0
-margin_bottom = 14.0
+layout_mode = 2
 size_flags_horizontal = 3
 text = "Tags"
-valign = 1
 
 [node name="SelectAllButton" type="CheckBox" parent="Header"]
 visible = false
-margin_left = 32.0
-margin_right = 120.0
-margin_bottom = 24.0
+layout_mode = 2
 size_flags_horizontal = 8
 text = "Select All"
 
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Color Code Looping"
+
+[node name="SplitContainer" type="SplitContainer" parent="."]
+layout_mode = 2
+
+[node name="ColorCodeButton" type="CheckBox" parent="SplitContainer"]
+layout_mode = 2
+button_pressed = true
+
+[node name="ColorList" type="HBoxContainer" parent="SplitContainer"]
+layout_mode = 2
+
+[node name="ButtonRed" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_pressed = true
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonRed"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.996078, 0.356863, 0.34902, 1)
+
+[node name="ButtonOrange" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonOrange"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.968627, 0.647059, 0.278431, 1)
+
+[node name="ButtonYellow" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonYellow"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.952941, 0.807843, 0.321569, 1)
+
+[node name="ButtonGreen" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonGreen"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.415686, 0.803922, 0.356863, 1)
+
+[node name="ButtonBlue" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonBlue"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.341176, 0.72549, 0.94902, 1)
+
+[node name="ButtonPurple" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonPurple"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.819608, 0.52549, 0.87451, 1)
+
+[node name="ButtonGrey" type="CheckBox" parent="SplitContainer/ColorList"]
+layout_mode = 2
+button_group = SubResource("ButtonGroup_qi5bp")
+flat = true
+
+[node name="ColorRect" type="ColorRect" parent="SplitContainer/ColorList/ButtonGrey"]
+show_behind_parent = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.647059, 0.647059, 0.654902, 1)
+
 [node name="Tree" type="Tree" parent="."]
-margin_top = 18.0
-margin_right = 28.0
-margin_bottom = 120.0
+layout_mode = 2
 size_flags_vertical = 3
-columns = 5
+columns = 6
+column_titles_visible = true
 hide_folding = true
 hide_root = true

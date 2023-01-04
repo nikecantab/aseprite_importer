@@ -1,17 +1,18 @@
-tool
+@tool
 extends PanelContainer
 
-onready var import_menu : Container = $Body/ImportMenu
-onready var steps : Container = import_menu.get_node("Steps")
-onready var json_import_menu : Container = steps.get_node("JSONImportMenu")
-onready var tags_menu : Container = steps.get_node("TagsMenu")
-onready var select_animation_player_menu = steps.get_node("SelectAnimationPlayerMenu")
-onready var select_sprite_menu = steps.get_node("SelectSpriteMenu")
-onready var generate_button : Button = steps.get_node("GenerateButton")
+@onready var import_menu : Container = $Body/ImportMenu
+@onready var steps : Container = import_menu.get_node("Steps")
+@onready var json_import_menu : Container = steps.get_node("JSONImportMenu")
+@onready var library_menu : Container = steps.get_node("LibraryMenu")
+@onready var tags_menu : Container = steps.get_node("TagsMenu")
+@onready var select_animation_player_menu = steps.get_node("SelectAnimationPlayerMenu")
+@onready var select_sprite_menu = steps.get_node("SelectSpriteMenu")
+@onready var generate_button : Button = steps.get_node("GenerateButton")
 
-onready var spritesheet_inspector : Container = $Body/SpritesheetInspector
+@onready var spritesheet_inspector : Container = $Body/SpritesheetInspector
 
-onready var alert_dialog : AcceptDialog = $AlertDialog
+@onready var alert_dialog : AcceptDialog = $AlertDialog
 
 
 const ERROR_MSG := {
@@ -27,7 +28,6 @@ const IMPORT_MENU_INITIAL_WIDTH := 300
 
 
 var import_data : AsepriteImportData
-
 var _is_ready := false
 
 
@@ -35,15 +35,21 @@ signal animations_generated(animation_player)
 
 
 func _ready() -> void:
-	import_menu.rect_size.x = IMPORT_MENU_INITIAL_WIDTH
+	import_menu.size.x = IMPORT_MENU_INITIAL_WIDTH
 
-	alert_dialog.set_as_toplevel(true)
+#	alert_dialog.set_as_top_level(true)
+#	alert_dialog.always_on_top = true
 
-	json_import_menu.connect("data_imported", self, "_on_JSONImportMenu_data_imported")
-	json_import_menu.connect("data_cleared", self, "_on_JSONImportMenu_data_cleared")
-	tags_menu.connect("frame_selected", self, "_on_TagSelectMenu_frame_selected")
-	tags_menu.connect("tag_selected", self, "_on_TagSelectMenu_tag_selected")
-	generate_button.connect("pressed", self, "_on_GenerateButton_pressed")
+#	json_import_menu.connect("data_imported", self, "_on_JSONImportMenu_data_imported")
+	json_import_menu.data_imported.connect(_on_JSONImportMenu_data_imported)
+#	json_import_menu.connect("data_cleared", self, "_on_JSONImportMenu_data_cleared")
+	json_import_menu.data_cleared.connect(_on_JSONImportMenu_data_cleared)
+#	tags_menu.connect("frame_selected", self, "_on_TagSelectMenu_frame_selected")
+	tags_menu.frame_selected.connect(_on_TagSelectMenu_frame_selected)
+#	tags_menu.connect("tag_selected", self, "_on_TagSelectMenu_tag_selected")
+	tags_menu.tag_selected.connect(_on_TagSelectMenu_tag_selected)
+#	generate_button.connect("pressed", self, "_on_GenerateButton_pressed")
+	generate_button.pressed.connect(_on_GenerateButton_pressed)
 
 
 func get_state() -> Dictionary:
@@ -104,8 +110,10 @@ func _on_GenerateButton_pressed() -> void:
 	var animation_player : AnimationPlayer = select_animation_player_menu.animation_player
 	var sprite : Node = select_sprite_menu.sprite
 	var texture : Texture = spritesheet_inspector.get_texture()
+	var looping_anims : Array = tags_menu.get_looping()
 
-	var error := AsepriteImporter.generate_animations(import_data, selected_tags, animation_player, sprite, texture)
+	var error := AsepriteImporter.generate_animations(import_data, selected_tags, looping_anims, 
+	animation_player, sprite, texture, library_menu.library_name)
 
 	if error != OK:
 		var error_msg : String
@@ -138,6 +146,8 @@ func _on_JSONImportMenu_data_imported(new_import_data : AsepriteImportData) -> v
 	spritesheet_inspector.texture_size = import_data.get_image_size()
 	spritesheet_inspector.frames = import_data.get_frame_array()
 	spritesheet_inspector.load_texture(image_filepath)
+	
+	library_menu.initialize_text(json_filepath.get_basename().get_file())
 
 
 func _on_JSONImportMenu_data_cleared() -> void:
@@ -145,6 +155,8 @@ func _on_JSONImportMenu_data_cleared() -> void:
 
 	spritesheet_inspector.clear_texture()
 	tags_menu.clear_options()
+	
+	library_menu.forbid_text()
 
 
 func _on_TagSelectMenu_frame_selected(idx : int) -> void:

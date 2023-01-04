@@ -1,11 +1,11 @@
-tool
+@tool
 extends Container
 
 
-onready var import_button : Button = $InputContainer/ImportButton
-onready var clear_button : Button = $InputContainer/ClearButton
-onready var file_dialog : FileDialog = $FileDialog
-onready var alert_dialog : AcceptDialog = $AlertDialog
+@onready var import_button : Button = $InputContainer/ImportButton
+@onready var clear_button : Button = $InputContainer/ClearButton
+@onready var file_dialog : FileDialog = $FileDialog
+@onready var alert_dialog : AcceptDialog = $AlertDialog
 
 
 const IMPORT_BUTTON_DEFAULT_TEXT = "Import JSON"
@@ -30,11 +30,12 @@ signal data_cleared
 func _ready():
 	clear_button.hide()
 
-	alert_dialog.set_as_toplevel(true)
+#	alert_dialog.set_as_top_level(true)
+#	alert_dialog.always_on_top = true
 
-	import_button.connect("pressed", self, "_on_ImportButton_pressed")
-	clear_button.connect("pressed", self, "_on_ClearButton_pressed")
-	file_dialog.connect("file_selected", self, "_on_FileDialog_file_selected")
+	import_button.pressed.connect(_on_ImportButton_pressed)
+	clear_button.pressed.connect(_on_ClearButton_pressed)
+	file_dialog.file_selected.connect(_on_FileDialog_file_selected)
 
 
 func set_json_filepath(new_filepath : String) -> void:
@@ -83,7 +84,7 @@ func _on_FileDialog_file_selected(path : String) -> void:
 
 		set_json_filepath("")
 
-		yield(get_tree(), "idle_frame")
+		await get_tree().process_frame
 		alert_dialog.dialog_text = error_msg
 		alert_dialog.popup_centered()
 	else:

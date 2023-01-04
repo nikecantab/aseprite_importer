@@ -1,34 +1,35 @@
-tool
+@tool
 extends Container
 
 
-onready var h_scroll_bar : HScrollBar = $HScrollBar
-onready var v_scroll_bar : VScrollBar = $VScrollBar
+@onready var h_scroll_bar : HScrollBar = $HScrollBar
+@onready var v_scroll_bar : VScrollBar = $VScrollBar
 
 
-export(Texture) var texture : Texture setget set_texture
-export(int, 1, 8) var zoom := 1 setget set_zoom
-export(Vector2) var offset := Vector2.ZERO setget set_offset
-export(bool)var zoom_to_fit := true
+@export var texture : Texture2D : set = set_texture
+@export_range(1, 8) var zoom : int = 1 : set = set_zoom
+#renamed to avoid conflicts with godot 4.0's set_offset V
+@export var pos_offset : Vector2 = Vector2.ZERO : set = set_pos_offset
+@export var zoom_to_fit : bool = true
 
 
 var frames = []
-var selected_frames := [] setget set_selected_frames
+var selected_frames := [] : set = set_selected_frames
 
-var frame_border_color := Color.red
+var frame_border_color := Color.RED
 var frame_border_visibility := true
 
-var selection_border_color := Color.yellow
+var selection_border_color := Color.YELLOW
 var selection_border_visibility := true
 
 var border_width := 2
 
-var texture_background_color := Color.green
+var texture_background_color := Color.GREEN
 var texture_background_visibility := true
 
-var background_color := Color.blue
+var background_color := Color.BLUE
 
-var _full_rect := Rect2(Vector2.ZERO, rect_size)
+var _full_rect := Rect2(Vector2.ZERO, size)
 var _render_rect : Rect2
 var _texture_size : Vector2
 var _min_offset : Vector2
@@ -46,11 +47,14 @@ func _ready() -> void:
 	h_scroll_bar.value = .5
 	v_scroll_bar.value = .5
 
-	connect("resized", self, "_on_resized")
-	h_scroll_bar.connect("value_changed", self, "_on_HScrollBar_value_changed")
-	v_scroll_bar.connect("value_changed", self, "_on_VScrollBar_value_changed")
+#	connect("resized", self, "_on_resized")
+	resized.connect(_on_resized)
+#	h_scroll_bar.connect("value_changed", self, "_on_HScrollBar_value_changed")
+	h_scroll_bar.value_changed.connect(_on_HScrollBar_value_changed)
+#	v_scroll_bar.connect("value_changed", self, "_on_VScrollBar_value_changed")
+	v_scroll_bar.value_changed.connect(_on_VScrollBar_value_changed)
 
-	update()
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -94,18 +98,18 @@ func _draw_frame_border(frame_idx : int, selected := false) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		match event.button_index:
-			BUTTON_MIDDLE:
+			MOUSE_BUTTON_MIDDLE:
 				_panning = event.pressed
 
 				if _panning:
 					mouse_default_cursor_shape = CURSOR_DRAG
 				else:
 					mouse_default_cursor_shape = CURSOR_ARROW
-			BUTTON_WHEEL_UP, BUTTON_WHEEL_DOWN:
+			MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN:
 				if event.pressed:
 					_zoom_pivot = get_local_mouse_position()
 
-					if event.button_index == BUTTON_WHEEL_UP:
+					if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 						self.zoom += 1
 					else:
 						self.zoom -= 1
@@ -113,7 +117,7 @@ func _gui_input(event: InputEvent) -> void:
 					_zoom_pivot = _full_rect.size / 2
 	elif event is InputEventMouseMotion:
 		if _panning:
-			self.offset += event.relative
+			self.pos_offset += event.relative
 
 
 func load_settings(settings : Dictionary) -> void:
@@ -128,7 +132,7 @@ func load_settings(settings : Dictionary) -> void:
 
 	background_color = settings.inspector_background.color
 
-	update()
+	queue_redraw()
 
 
 func _update_offset_limits() -> void:
@@ -166,7 +170,7 @@ func _update_scrollbars() ->void:
 			h_scroll_bar.page = h_page
 			h_scroll_bar.max_value = 1 + h_page
 
-			var value := inverse_lerp(_max_offset.x, _min_offset.x, offset.x)
+			var value := inverse_lerp(_max_offset.x, _min_offset.x, pos_offset.x)
 			h_scroll_bar.value = value
 
 			h_scroll_bar.show()
@@ -183,7 +187,7 @@ func _update_scrollbars() ->void:
 			v_scroll_bar.page = v_page
 			v_scroll_bar.max_value = 1 + v_page
 
-			var value := inverse_lerp(_max_offset.y, _min_offset.y, offset.y)
+			var value := inverse_lerp(_max_offset.y, _min_offset.y, pos_offset.y)
 			v_scroll_bar.value = value
 
 			v_scroll_bar.show()
@@ -194,27 +198,27 @@ func _update_scrollbars() ->void:
 
 
 # Setters and Getters
-func set_offset(new_offset : Vector2) -> void:
+func set_pos_offset(new_offset : Vector2) -> void:
 	new_offset.x = clamp(new_offset.x, _min_offset.x, _max_offset.x)
 	new_offset.y = clamp(new_offset.y, _min_offset.y, _max_offset.y)
 
-	if new_offset == offset:
+	if new_offset == pos_offset:
 		return
 
-	offset = new_offset
+	pos_offset = new_offset
 
-	_render_rect.position = offset
+	_render_rect.position = pos_offset
 
 	if not _updating_scroll_bars:
 		_update_scrollbars()
 
-	update()
+	queue_redraw()
 
 
 func set_selected_frames(selection : Array) -> void:
 	selected_frames = selection
 
-	update()
+	queue_redraw()
 
 
 func set_texture(new_texture) -> void:
@@ -238,14 +242,14 @@ func set_texture(new_texture) -> void:
 
 	_update_offset_limits()
 
-	self.offset = (_max_offset - _min_offset) / 2
+	self.pos_offset = (_max_offset - _min_offset) / 2
 
 
 func set_zoom(new_zoom : int) -> void:
 	zoom = clamp(new_zoom, 1, 8)
 
 	var new_render_rect_size := _texture_size * zoom
-	var relative_pivot := _zoom_pivot - offset
+	var relative_pivot := _zoom_pivot - pos_offset
 
 	var pivot_weight : Vector2
 
@@ -262,14 +266,14 @@ func set_zoom(new_zoom : int) -> void:
 
 	_update_scrollbars()
 
-	self.offset = offset - offset_diff
+	self.pos_offset = pos_offset - offset_diff
 
 	emit_signal("zoom_changed", zoom)
 
 
 # Signal Callbacks
 func _on_resized() -> void:
-	_full_rect.size = rect_size
+	_full_rect.size = size
 
 	_zoom_pivot = _full_rect.size / 2
 
@@ -277,21 +281,21 @@ func _on_resized() -> void:
 
 	_update_scrollbars()
 
-	self.offset = offset
+	self.pos_offset = pos_offset
 
 	var rect := Rect2()
 
 	rect.position.x = 0
-	rect.position.y = (rect_size.y - h_scroll_bar.rect_size.y)
-	rect.size.x = (rect_size.x - v_scroll_bar.rect_size.x)
-	rect.size.y = h_scroll_bar.rect_size.y
+	rect.position.y = (size.y - h_scroll_bar.size.y)
+	rect.size.x = (size.x - v_scroll_bar.size.x)
+	rect.size.y = h_scroll_bar.size.y
 
 	fit_child_in_rect(h_scroll_bar, rect)
 
-	rect.position.x = (rect_size.x - v_scroll_bar.rect_size.x)
+	rect.position.x = (size.x - v_scroll_bar.size.x)
 	rect.position.y = 0
-	rect.size.x = v_scroll_bar.rect_size.x
-	rect.size.y = (rect_size.y - h_scroll_bar.rect_size.y)
+	rect.size.x = v_scroll_bar.size.x
+	rect.size.y = (size.y - h_scroll_bar.size.y)
 
 	fit_child_in_rect(v_scroll_bar, rect)
 
@@ -302,7 +306,7 @@ func _on_HScrollBar_value_changed(value : float) -> void:
 		return
 
 	_updating_scroll_bars = true
-	self.offset.x = lerp(_max_offset.x, _min_offset.x, value)
+	self.pos_offset.x = lerp(_max_offset.x, _min_offset.x, value)
 	_updating_scroll_bars = false
 
 
@@ -311,5 +315,5 @@ func _on_VScrollBar_value_changed(value : float) -> void:
 		return
 
 	_updating_scroll_bars = true
-	self.offset.y = lerp(_max_offset.y, _min_offset.y, value)
+	self.pos_offset.y = lerp(_max_offset.y, _min_offset.y, value)
 	_updating_scroll_bars = false

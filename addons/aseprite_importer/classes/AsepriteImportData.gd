@@ -1,4 +1,4 @@
-tool
+@tool
 extends Node
 class_name AsepriteImportData
 
@@ -38,7 +38,8 @@ const META_TEMPLATE = {
 			name = TYPE_STRING,
 			from = TYPE_INT,
 			to = TYPE_INT,
-			direction = TYPE_STRING
+			direction = TYPE_STRING,
+			color = TYPE_STRING
 		},
 	],
 	size = {
@@ -53,31 +54,37 @@ var json_data : Dictionary
 
 
 func load(filepath : String) -> int:
-	var file := File.new()
+#	var file := File.new()
+#
+#	var error := file.open(filepath, File.READ)
+#	if error != OK:
+#		return error
+	if FileAccess.file_exists(filepath):
+		var file = FileAccess.open(filepath,FileAccess.READ)
+		
+		var file_text = file.get_as_text()
+#		file.close()
 
-	var error := file.open(filepath, File.READ)
-	if error != OK:
-		return error
+#		var json := JSON.parse(file_text)
+#		if json.error != OK:
+		var json = JSON.new()
+		if json.parse(file_text) != OK:
+			return Error.ERR_JSON_PARSE_ERROR
 
-	var file_text = file.get_as_text()
-	file.close()
+#		error = _validate_json(json)
+		var error = _validate_json(file_text)
+		if error != OK:
+			return error
 
-	var json := JSON.parse(file_text)
-	if json.error != OK:
-		return Error.ERR_JSON_PARSE_ERROR
-
-	error = _validate_json(json)
-	if error != OK:
-		return error
-
-	json_filepath = filepath
-	json_data = json.result
+		json_filepath = filepath
+		json_data = json.data#result
 
 	return OK
 
 
 func get_frame_array() -> Array:
-	if not json_data:
+#	if not json_data:
+	if json_data.is_empty():
 		return []
 
 	var frame_data = json_data.frames
@@ -95,7 +102,8 @@ func get_image_filename() -> String:
 
 
 func get_image_size() -> Vector2:
-	if not json_data:
+#	if not json_data:
+	if json_data.is_empty():
 		return Vector2.ZERO
 
 	var image_size : Dictionary = json_data.meta.size
@@ -115,21 +123,31 @@ func get_tag(tag_idx : int) -> Dictionary:
 
 
 func get_tags() -> Array:
-	if not json_data:
+#	if not json_data:
+	if json_data.is_empty():
 		return []
 
 	return json_data.meta.frameTags
 
-
-static func _validate_json(json : JSONParseResult) -> int:
-	var data : Dictionary = json.result
+#is JSONParseResult deprecated? removed static type
+#in calls, change parse to string
+static func _validate_json(json_string : String) -> int:
+	var json = JSON.new()
+	var err = json.parse(json_string)
+	
+	if err != OK:
+		return Error.ERR_JSON_PARSE_ERROR
+	json.get_data()
+	
+	
+	var data : Dictionary = json.get_data()#json.result
 
 	if not (data is Dictionary and data.has_all(["frames", "meta"])):
 		return Error.ERR_INVALID_JSON_DATA
 
 	# "frames" validation
 	var frames = data.frames
-	var is_hash := frames is Dictionary
+	var is_hash : bool = frames is Dictionary
 
 	for frame in frames:
 		if is_hash:
@@ -152,15 +170,15 @@ static func _validate_json(json : JSONParseResult) -> int:
 	return OK
 
 
-"""
-This helper function recursively walks an Array or a Dictionary checking if each
-children's type matches the template
-"""
+#"""
+#This helper function recursively walks an Array or a Dictionary checking if each
+#children's type matches the template
+#"""
 static func _match_template(data, template) -> bool:
 	match typeof(template):
 		TYPE_INT:
 			# When parsed, the JSON interprets integer values as floats
-			if template == TYPE_INT and typeof(data) == TYPE_REAL:
+			if template == TYPE_INT and typeof(data) == TYPE_FLOAT:
 				return true
 			return typeof(data) == template
 		TYPE_DICTIONARY:
@@ -177,7 +195,7 @@ static func _match_template(data, template) -> bool:
 			if typeof(data) != TYPE_ARRAY:
 				return false
 
-			if data.empty():
+			if data.is_empty():
 				return false
 
 			for element in data:
