@@ -9,7 +9,6 @@ extends Container
 const SELECT_BUTTON_DEFAULT_TEXT := "Select a Node"
 
 
-#var sprite : Node setget set_sprite
 var sprite : Node : set = set_sprite
 
 var _sprite_icon : Texture

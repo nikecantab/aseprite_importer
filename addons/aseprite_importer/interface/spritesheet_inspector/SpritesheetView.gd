@@ -47,11 +47,8 @@ func _ready() -> void:
 	h_scroll_bar.value = .5
 	v_scroll_bar.value = .5
 
-#	connect("resized", self, "_on_resized")
 	resized.connect(_on_resized)
-#	h_scroll_bar.connect("value_changed", self, "_on_HScrollBar_value_changed")
 	h_scroll_bar.value_changed.connect(_on_HScrollBar_value_changed)
-#	v_scroll_bar.connect("value_changed", self, "_on_VScrollBar_value_changed")
 	v_scroll_bar.value_changed.connect(_on_VScrollBar_value_changed)
 
 	queue_redraw()

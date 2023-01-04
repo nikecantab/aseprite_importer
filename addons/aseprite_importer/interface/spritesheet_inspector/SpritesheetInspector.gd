@@ -48,19 +48,12 @@ func _ready() -> void:
 	var settings = settings_menu.settings
 	spritesheet_view.load_settings(settings)
 
-#	settings_button.connect("toggled", self, "_on_SettingsButton_toggled")
 	settings_button.toggled.connect(_on_SettingsButton_toggled)
-#	search_file_button.connect("pressed", self, "_on_SearchFileButton_pressed")
 	search_file_button.pressed.connect(_on_SearchFileButton_pressed)
-#	spritesheet_view.connect("zoom_changed", self, "_on_SpritesheetInspector_zoom_changed")
 	spritesheet_view.zoom_changed.connect(_on_SpritesheetInspector_zoom_changed)
-#	settings_menu.connect("settings_changed", self, "_on_SettingsMenu_settings_changed")
 	settings_menu.settings_changed.connect(_on_SettingsMenu_settings_changed)
-#	zoom_button.connect("pressed", self, "_on_ZoomButton_pressed")
 	zoom_button.pressed.connect(_on_ZoomButton_pressed)
-#	zoom_slider.connect("value_changed", self, "_on_ZoomSlider_value_changed")
 	zoom_slider.value_changed.connect(_on_ZoomSlider_value_changed)
-#	file_dialog.connect("file_selected", self, "_on_FileDialog_file_selected")
 	file_dialog.file_selected.connect(_on_FileDialog_file_selected)
 
 

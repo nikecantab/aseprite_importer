@@ -40,15 +40,10 @@ func _ready() -> void:
 #	alert_dialog.set_as_top_level(true)
 #	alert_dialog.always_on_top = true
 
-#	json_import_menu.connect("data_imported", self, "_on_JSONImportMenu_data_imported")
 	json_import_menu.data_imported.connect(_on_JSONImportMenu_data_imported)
-#	json_import_menu.connect("data_cleared", self, "_on_JSONImportMenu_data_cleared")
 	json_import_menu.data_cleared.connect(_on_JSONImportMenu_data_cleared)
-#	tags_menu.connect("frame_selected", self, "_on_TagSelectMenu_frame_selected")
 	tags_menu.frame_selected.connect(_on_TagSelectMenu_frame_selected)
-#	tags_menu.connect("tag_selected", self, "_on_TagSelectMenu_tag_selected")
 	tags_menu.tag_selected.connect(_on_TagSelectMenu_tag_selected)
-#	generate_button.connect("pressed", self, "_on_GenerateButton_pressed")
 	generate_button.pressed.connect(_on_GenerateButton_pressed)
 
 

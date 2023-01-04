@@ -20,23 +20,13 @@ var _state_set := false
 func _enter_tree() -> void:
 	interface = INTERFACE_SCN.instantiate()
 
-#learning new signals, remove later:
-#	interface.connect("ready", self, "_on_interface_ready", [], CONNECT_ONESHOT)
-#	interface.connect("ready", Callable(self, "_on_interface_ready"))#, [], CONNECT_ONESHOT))
 	interface.ready.connect(_on_interface_ready, 4) #idk why but it doesn't recognise CONNECT_ONESHOT
-	#lambda:
-#	interface.ready.connect(func(): _update_theme())
-
-#	actions.connect("import_clicked",Callable(self,"_on_entry_reimport_clicked"))
 
 	editor_viewport.add_child(interface)
 	_make_visible(false)
 
-#	connect("scene_changed", self, "_on_scene_changed")
 	scene_changed.connect(_on_scene_changed)
-#	editor_settings.connect("settings_changed", self, "_on_settings_changed")
 	editor_settings.settings_changed.connect(_on_settings_changed)
-#	interface.connect("animations_generated", self, "_on_animations_generated")
 	interface.animations_generated.connect(_on_animations_generated)
 	
 

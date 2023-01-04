@@ -43,7 +43,6 @@ func _ready():
 
 		color_menu.set_meta("property", property)
 
-#		color_menu.connect("property_changed", self, "_on_ColorMenuItem_property_changed")
 		color_menu.property_changed.connect(_on_ColorMenuItem_property_changed)
 
 

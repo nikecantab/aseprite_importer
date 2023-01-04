@@ -49,11 +49,8 @@ func _ready():
 #	alert_dialog.set_as_top_level(true)
 #	alert_dialog.always_on_top = true
 
-#	scene_tree.connect('item_activated', self, '_on_node_selected')
 	scene_tree.item_activated.connect(_on_node_selected)
-#	confirm_button.connect('pressed', self, '_on_node_selected')
 	confirm_button.pressed.connect(_on_node_selected)
-#	cancel_button.connect('pressed', self, 'hide')
 	cancel_button.pressed.connect(hide)
 
 
@@ -75,7 +72,6 @@ func initialize() -> bool:
 #	if class_filters and filtered_node_count == 0:
 	if filtered_node_count == 0:
 		if !class_filters.is_empty():
-#			var filters_str := PackedStringArray(class_filters).join(" / ")
 			var filters_str := " / ".join(PackedStringArray(class_filters))
 			_show_alert(MSG_NO_FILTERED_NODES_IN_SCENE % filters_str)
 			return false
@@ -132,7 +128,6 @@ func set_class_filters(filters : Array) -> void:
 	class_filters = filters
 
 	if class_filters != []:
-#		var filters_str := PoolStringArray(class_filters).join(" / ")
 		var filters_str := " / ".join(PackedStringArray(class_filters))
 		title = WINDOW_TITLE_WITH_FILTER % filters_str
 	else:

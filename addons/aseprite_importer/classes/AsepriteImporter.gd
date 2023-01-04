@@ -66,8 +66,7 @@ static func generate_animations(import_data : AsepriteImportData, selected_tags 
 	var is_sprite3d := sprite is Sprite3D
 	var animation_lib : AnimationLibrary
 	
-	#TODO: remember to clean this up
-#	var lib_name = import_data.json_filepath.get_basename().get_file() as StringName
+	
 	var lib_name = library_name as StringName
 	
 	var libraries = animation_player.get_animation_library_list()
@@ -128,9 +127,6 @@ static func generate_animations(import_data : AsepriteImportData, selected_tags 
 				frame_idxs.reverse()
 			"pingpong":
 				animation.set_loop_mode(2)
-#				var pong_frame_idxs := range(tag.from + 1, tag.to)
-#				pong_frame_idxs.reverse()
-#				frame_idxs += pong_frame_idxs
 
 		# Insert the new keys
 		for i in frame_idxs:

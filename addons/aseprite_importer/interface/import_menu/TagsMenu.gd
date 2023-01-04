@@ -115,7 +115,6 @@ func load_tags(tags : Array) -> void:
 		new_tree_item.set_checked(Columns.LOOPING, false)
 		if tag.has("color"):
 			#COLOR CODED TAGS
-			#TODO: Select loop color
 			new_tree_item.set_checked(Columns.LOOPING, tag.color == _looping_color)
 		new_tree_item.set_selectable(Columns.LOOPING, false)
 
