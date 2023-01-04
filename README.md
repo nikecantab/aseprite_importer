@@ -1,6 +1,6 @@
 [![](https://github.com/hectorid/aseprite_importer/blob/master/images/logo.png?raw=true)](https://github.com/hectorid/aseprite_importer)
 
-**A plugin for the [Godot Engine](https://godotengine.org/) that imports animations from [Aseprite](https://www.aseprite.org/)**
+**A plugin for the [Godot Engine](https://godotengine.org/) that imports animations from [Aseprite](https://www.aseprite.org/), new with Godot 4.0 compatibility and new features!**
 
 [![](https://github.com/hectorid/aseprite_importer/blob/master/images/screenshots/plugin_preview.png?raw=true)](https://github.com/hectorid/aseprite_importer/blob/master/images/screenshots/plugin_preview.png?raw=true)
 
